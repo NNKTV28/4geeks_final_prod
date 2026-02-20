@@ -2,5 +2,8 @@
     "workbench.startupEditor": "readme",
     "workbench.editorAssociations": {
         "*.md": "vscode.markdown.preview.editor"
-    }
+    },
+    "python-envs.pythonProjects": [],
+    "python.defaultInterpreterPath": "/workspaces/4geeks_final_prod/.venv/bin/python",
+    "python.notebook.kernel.pythonPath": "/workspaces/4geeks_final_prod/.venv/bin/python"
 }

@@ -39,7 +39,7 @@ st.markdown("""
 # ===== CARGAR DATOS =====
 @st.cache_data
 def load_data():
-    DB_PATH = '../data/movielens.db'     
+    DB_PATH = 'movielens.db'     
     conn = sqlite3.connect(DB_PATH)
     
     ratings = pd.read_sql("SELECT * FROM ratings", conn)

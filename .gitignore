@@ -13,4 +13,6 @@ ENV/
 
 # OS
 .DS_Store
-EOF
+
+# NO ignorar movielens.db (lo necesitamos)
+!movielens.db

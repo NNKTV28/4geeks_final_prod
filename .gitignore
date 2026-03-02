@@ -1,9 +1,16 @@
+# Python
 __pycache__/
-*.pyc
-.env
-.learn
+*.py[cod]
 venv/
-.vscode/
-images/
-data/movielens.db
-*.png
+.venv/
+env/
+ENV/
+
+# Temporales
+*.csv
+*.pkl
+60%
+
+# OS
+.DS_Store
+EOF

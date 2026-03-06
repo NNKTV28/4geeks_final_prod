@@ -27,7 +27,7 @@ warnings.filterwarnings("ignore")
 # ── Rutas ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.join(SCRIPT_DIR, "..")
-DB_PATH = os.path.join(PROJECT_DIR, "data", "movielens.db")
+DB_PATH = os.path.join(PROJECT_DIR, "..", "data", "movielens.db")
 OUT_DIR = os.path.join(PROJECT_DIR, "images")  # imágenes en carpeta dedicada
 os.makedirs(OUT_DIR, exist_ok=True)
 

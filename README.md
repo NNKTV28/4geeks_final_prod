@@ -188,6 +188,9 @@ python src/load_to_sqlite.py
 
 # Ejecutar EDA + evaluación de modelos
 python src/eda_nikita/evaluate_models.py
+
+# URL STREAMLIT
+https://movielens-recommender-b49e.onrender.com/
 ```
 
 ---

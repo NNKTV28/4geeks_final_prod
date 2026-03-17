@@ -145,7 +145,7 @@ with tab2:
             result['similarity'] = [f"{s*100:.1f}%" for s in scores]
             
             st.success(f"Películas similares a: **{selected}**")
-            st.dataframe(result, use_container_width=True, hide_index=True)
+            st.dataframe(result, width='stretch', hide_index=True)
 
 # ===== TAB 3: PARA TI =====
 with tab3:
@@ -173,7 +173,7 @@ with tab3:
             result['predicted'] = result['predicted'].round(2)
             
             st.success(f"Recomendaciones para Usuario #{user_id}")
-            st.dataframe(result[['title', 'year', 'predicted']], use_container_width=True, hide_index=True)
+            st.dataframe(result[['title', 'year', 'predicted']], width='stretch', hide_index=True)
         else:
             st.error("Usuario no encontrado")
 
@@ -187,7 +187,7 @@ with tab4:
     fig = px.bar(x=rating_dist.index, y=rating_dist.values,
                 labels={'x': 'Rating', 'y': 'Cantidad'},
                 color_discrete_sequence=['#E50914'])
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
     
     # Géneros
     st.write("**Géneros Más Populares**")
@@ -196,7 +196,7 @@ with tab4:
     fig2 = px.bar(x=genre_counts.index, y=genre_counts.values,
                  labels={'x': 'Género', 'y': 'Películas'},
                  color_discrete_sequence=['#E50914'])
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width='stretch')
 
 # ===== FOOTER =====
 st.divider()

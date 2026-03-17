@@ -1,19 +1,13 @@
-# Python
 __pycache__/
 *.py[cod]
 venv/
 .venv/
 env/
 ENV/
-
-# Temporales
 *.pkl
-
-# OS
 .DS_Store
-
-# NO ignorar movielens.db (lo necesitamos)
 !movielens.db
-
-# NO ignorar imágenes generadas
 !src/images/
+.github
+.devcontainer
+.vscode

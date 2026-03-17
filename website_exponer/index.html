@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MovieLens 100K — Presentación</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!--  BARRA DE PROGRESO + NAV                                              -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div id="progress-bar"></div>
+
+<nav id="sidebar">
+  <div class="sidebar-toggle" id="sidebar-toggle">☰</div>
+  <ul id="nav-list"></ul>
+</nav>
+
+<div id="speaker-badge"></div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!--  SLIDES                                                               -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<main id="presentation">
+
+  <!-- ── SLIDE 0: PORTADA ────────────────────────────────────────────── -->
+  <section class="slide active" data-title="Portada" data-speaker="">
+    <div class="slide-content cover">
+      <div class="cover-icon">🎬</div>
+      <h1 class="cover-title">Sistema de Recomendación<br/>de Películas</h1>
+      <p class="cover-subtitle">MovieLens 100K &mdash; Filtrado Colaborativo &amp; SVD</p>
+      <div class="cover-team">
+        <div class="team-member" style="--accent:#E50914">
+          <div class="avatar">N</div>
+          <span>Nikita</span>
+        </div>
+        <div class="team-member" style="--accent:#6C63FF">
+          <div class="avatar">P</div>
+          <span>Paloma</span>
+        </div>
+      </div>
+      <p class="cover-footer">Proyecto Final &bull; 4Geeks Academy &bull; Data Science Bootcamp</p>
+      <div class="start-hint">Pulsa <kbd>→</kbd> o haz clic en <strong>siguiente</strong> para empezar</div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 1: MOTIVACIÓN ─────────────────────────────────────────── -->
+  <section class="slide" data-title="Motivación" data-speaker="Nikita">
+    <div class="slide-content">
+      <h2><span class="num">01</span> ¿Por qué este proyecto?</h2>
+      <div class="two-col">
+        <div>
+          <div class="highlight-box">
+            <p>Siempre nos pareció interesante cómo plataformas como <strong>Netflix</strong> o <strong>Spotify</strong> saben qué recomendarte.</p>
+          </div>
+          <ul class="feature-list">
+            <li>Construir un <strong>sistema de recomendación desde cero</strong></li>
+            <li>Usar <strong>datos reales</strong> de preferencias de usuarios</li>
+            <li>Probar distintos enfoques de <strong>Machine Learning</strong></li>
+            <li>Comparar cuál recomienda <strong>mejor</strong></li>
+          </ul>
+        </div>
+        <div class="visual-card">
+          <div class="emoji-big">🍿</div>
+          <p class="visual-text">De la limpieza de datos a la evaluación de modelos</p>
+          <div class="tech-pills">
+            <span class="pill python">Python</span>
+            <span class="pill pandas">Pandas</span>
+            <span class="pill sklearn">scikit-learn</span>
+            <span class="pill sql">SQLite</span>
+            <span class="pill numpy">NumPy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 2: EL DATASET ─────────────────────────────────────────── -->
+  <section class="slide" data-title="El Dataset" data-speaker="Paloma">
+    <div class="slide-content">
+      <h2><span class="num">02</span> MovieLens 100K — Los Datos</h2>
+      <p class="subtitle">Recopilado por GroupLens Research (Univ. Minnesota) &mdash; Sep 1997 – Abr 1998</p>
+      <div class="stats-grid">
+        <div class="stat-card" style="--delay:0.1s">
+          <div class="stat-number" data-target="100000">0</div>
+          <div class="stat-label">Ratings (1–5)</div>
+        </div>
+        <div class="stat-card" style="--delay:0.2s">
+          <div class="stat-number" data-target="943">0</div>
+          <div class="stat-label">Usuarios</div>
+        </div>
+        <div class="stat-card" style="--delay:0.3s">
+          <div class="stat-number" data-target="1682">0</div>
+          <div class="stat-label">Películas</div>
+        </div>
+        <div class="stat-card" style="--delay:0.4s">
+          <div class="stat-number">20+</div>
+          <div class="stat-label">Ratings mín/usuario</div>
+        </div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Archivo</th><th>Contenido</th></tr></thead>
+          <tbody>
+            <tr><td><code>u.data</code></td><td>100K ratings (user, item, rating, timestamp)</td></tr>
+            <tr><td><code>u.user</code></td><td>Demografía: edad, género, ocupación, zipcode</td></tr>
+            <tr><td><code>u.item</code></td><td>Info películas + 19 flags binarios de género</td></tr>
+            <tr><td><code>ua.base / ua.test</code></td><td>Split entrenamiento / test predefinido</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 3: PROCESAMIENTO ──────────────────────────────────────── -->
+  <section class="slide" data-title="Procesamiento" data-speaker="Nikita">
+    <div class="slide-content">
+      <h2><span class="num">03</span> Pipeline de Procesamiento</h2>
+      <div class="pipeline">
+        <div class="pipe-step"><div class="pipe-icon">📁</div><div class="pipe-label">Archivos raw<br/><small>pipes &amp; tabs</small></div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step"><div class="pipe-icon">🐍</div><div class="pipe-label">load_to_sqlite.py<br/><small>parseo &amp; carga</small></div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step"><div class="pipe-icon">🗄️</div><div class="pipe-label">movielens.db<br/><small>SQLite</small></div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step"><div class="pipe-icon">📊</div><div class="pipe-label">EDA &amp; Modelos<br/><small>Pandas + sklearn</small></div></div>
+      </div>
+      <div class="process-cards">
+        <div class="process-card">
+          <h4>1. Carga a SQLite</h4>
+          <p>Script que parsea archivos → tablas: <code>users</code>, <code>items</code>, <code>ratings</code>, <code>genres</code>, <code>occupations</code></p>
+        </div>
+        <div class="process-card">
+          <h4>2. Unificación</h4>
+          <p>Merge de ratings + usuarios + películas en un <strong>solo DataFrame</strong></p>
+        </div>
+        <div class="process-card">
+          <h4>3. Limpieza</h4>
+          <p>Nulos mínimos (solo <code>video_release_date</code>), <strong>0% duplicados</strong>, extracción de año con regex</p>
+        </div>
+        <div class="process-card">
+          <h4>4. Feature Engineering</h4>
+          <p>Grupos de edad, décadas, <strong>matriz usuario-ítem</strong> (943×1682) centrada por media del usuario</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 4: EDA DISTRIBUCIONES ─────────────────────────────────── -->
+  <section class="slide" data-title="EDA: Distribuciones" data-speaker="Paloma">
+    <div class="slide-content">
+      <h2><span class="num">04</span> Análisis Exploratorio — Distribuciones</h2>
+      <div class="image-showcase">
+        <img src="../src/images/eda_visualizations.png" alt="EDA Visualizations" class="slide-img zoomable" />
+      </div>
+      <div class="findings">
+        <div class="finding"><span class="finding-icon">⭐</span> La mayoría de ratings son <strong>3 o 4 estrellas</strong>. Pocos dan un 1.</div>
+        <div class="finding"><span class="finding-icon">👤</span> Usuario típico: <strong>hombre, 20-35 años, estudiante</strong>.</div>
+        <div class="finding"><span class="finding-icon">🎭</span> <strong>Drama</strong> es el género rey en cantidad de películas y ratings.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 5: EDA TEMPORAL & GÉNEROS ─────────────────────────────── -->
+  <section class="slide" data-title="EDA: Temporal & Géneros" data-speaker="Paloma">
+    <div class="slide-content">
+      <h2><span class="num">05</span> Análisis Temporal &amp; Géneros</h2>
+      <div class="image-grid-2">
+        <div class="img-card">
+          <img src="../src/images/temporal_decades.png" alt="Análisis Temporal" class="slide-img zoomable" />
+          <p class="img-caption">Películas, ratings y promedio por década</p>
+        </div>
+        <div class="img-card">
+          <img src="../src/images/genre_popularity_rating.png" alt="Género Popularidad" class="slide-img zoomable" />
+          <p class="img-caption">Popularidad y rating promedio por género</p>
+        </div>
+      </div>
+      <div class="findings">
+        <div class="finding"><span class="finding-icon">📅</span> Los 90s dominan en cantidad, pero <strong>clásicos puntúan mejor</strong> (sesgo de supervivencia).</div>
+        <div class="finding"><span class="finding-icon">🎬</span> Géneros nicho como <strong>Film-Noir y War</strong> tienen los promedios más altos.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 6: EDA GÉNEROS AVANZADO ───────────────────────────────── -->
+  <section class="slide" data-title="EDA: Co-ocurrencia" data-speaker="Paloma">
+    <div class="slide-content">
+      <h2><span class="num">06</span> Co-ocurrencia &amp; Evolución de Géneros</h2>
+      <div class="image-grid-2">
+        <div class="img-card">
+          <img src="../src/images/genre_cooccurrence.png" alt="Co-ocurrencia de Géneros" class="slide-img zoomable" />
+          <p class="img-caption">Géneros que se combinan con frecuencia</p>
+        </div>
+        <div class="img-card">
+          <img src="../src/images/genre_evolution.png" alt="Evolución de Géneros" class="slide-img zoomable" />
+          <p class="img-caption">Evolución temporal de los géneros</p>
+        </div>
+      </div>
+      <div class="findings">
+        <div class="finding"><span class="finding-icon">🔗</span> Combos frecuentes: <strong>Drama+Romance</strong>, <strong>Action+Adventure</strong>, <strong>Thriller+Crime</strong></div>
+        <div class="finding"><span class="finding-icon">📈</span> La correlación edad-año-rating es <strong>prácticamente nula</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 7: CORRELACIONES ──────────────────────────────────────── -->
+  <section class="slide" data-title="EDA: Correlaciones" data-speaker="Nikita">
+    <div class="slide-content">
+      <h2><span class="num">07</span> Matriz de Correlación</h2>
+      <div class="center-image">
+        <img src="../src/images/correlation_matrix.png" alt="Matriz de Correlación" class="slide-img zoomable medium-img" />
+      </div>
+      <div class="highlight-box center-box">
+        <p>La edad del usuario, el año de la película y el rating tienen <strong>correlaciones cercanas a cero</strong>. La edad no predice qué nota dará un usuario.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 8: LOS 3 MODELOS ──────────────────────────────────────── -->
+  <section class="slide" data-title="Los 3 Modelos" data-speaker="Nikita">
+    <div class="slide-content">
+      <h2><span class="num">08</span> Machine Learning — 3 Modelos</h2>
+      <p class="subtitle">Split predefinido: <code>ua_base</code> (entrenar) → <code>ua_test</code> (evaluar)</p>
+      <div class="model-cards">
+        <div class="model-card" style="--accent:#E50914">
+          <div class="model-num">1</div>
+          <h3>User-Based CF</h3>
+          <p>Busca <strong>usuarios parecidos</strong> a ti y recomienda lo que les gustó (k=30 vecinos)</p>
+          <div class="model-tag">Collaborative Filtering</div>
+        </div>
+        <div class="model-card" style="--accent:#6C63FF">
+          <div class="model-num">2</div>
+          <h3>Item-Based CF</h3>
+          <p>Busca <strong>películas parecidas</strong> a las que ya te gustaron (k=30 vecinos)</p>
+          <div class="model-tag">Collaborative Filtering</div>
+        </div>
+        <div class="model-card" style="--accent:#00C853">
+          <div class="model-num">3</div>
+          <h3>SVD</h3>
+          <p>Descompone la matriz para encontrar <strong>"gustos ocultos"</strong> de cada usuario (k=50 factores)</p>
+          <div class="model-tag">Matrix Factorization</div>
+        </div>
+      </div>
+      <div class="matrix-visual">
+        <div class="matrix-label">Matriz 943 × 1682</div>
+        <div class="matrix-bar">
+          <div class="filled" style="width:6.3%"></div>
+        </div>
+        <div class="matrix-info">Solo 6.3% llena — <strong>93.7% vacía</strong> (sparse)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 9: RESULTADOS ─────────────────────────────────────────── -->
+  <section class="slide" data-title="Resultados RMSE/MAE" data-speaker="Nikita">
+    <div class="slide-content">
+      <h2><span class="num">09</span> Resultados — RMSE &amp; MAE</h2>
+      <div class="image-showcase">
+        <img src="../src/images/model_comparison_rmse_mae.png" alt="Comparación RMSE MAE" class="slide-img zoomable" />
+      </div>
+      <div class="results-table-wrap">
+        <table class="results-table">
+          <thead><tr><th>Sistema</th><th>RMSE ↓</th><th>MAE ↓</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>User-Based CF</td><td>~0.99</td><td>~0.78</td><td></td></tr>
+            <tr><td>Item-Based CF</td><td>~1.03</td><td>~0.82</td><td></td></tr>
+            <tr class="winner"><td>SVD (k=50)</td><td><strong>~0.95</strong></td><td><strong>~0.75</strong></td><td>🏆</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 10: PRECISION/RECALL & RADAR ──────────────────────────── -->
+  <section class="slide" data-title="Precision, Recall & Radar" data-speaker="Paloma">
+    <div class="slide-content">
+      <h2><span class="num">10</span> Precision@K, Recall@K &amp; Radar</h2>
+      <div class="image-grid-2">
+        <div class="img-card">
+          <img src="../src/images/precision_recall_at_k.png" alt="Precision Recall at K" class="slide-img zoomable" />
+          <p class="img-caption">Precision y Recall con K = 5, 10, 15, 20</p>
+        </div>
+        <div class="img-card">
+          <img src="../src/images/radar_comparison.png" alt="Radar Comparison" class="slide-img zoomable" />
+          <p class="img-caption">Comparación multi-dimensión de los 3 modelos</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 11: DISTRIBUCIÓN DE ERRORES ───────────────────────────── -->
+  <section class="slide" data-title="Distribución de Errores" data-speaker="Paloma">
+    <div class="slide-content">
+      <h2><span class="num">11</span> Distribución de Errores</h2>
+      <div class="image-showcase">
+        <img src="../src/images/error_distributions.png" alt="Distribución de Errores" class="slide-img zoomable" />
+      </div>
+      <div class="findings">
+        <div class="finding"><span class="finding-icon">📊</span> Los 3 modelos se equivocan de forma <strong>simétrica</strong> — no hay sesgo sistemático.</div>
+        <div class="finding"><span class="finding-icon">🏆</span> <strong>SVD tiene menos dispersión</strong>: errores más concentrados cerca de cero.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 12: DEMO STREAMLIT ────────────────────────────────────── -->
+  <section class="slide" data-title="Demo App" data-speaker="Nikita">
+    <div class="slide-content">
+      <h2><span class="num">12</span> Demo — App Streamlit</h2>
+      <p class="subtitle">Aplicación interactiva con 4 secciones</p>
+      <div class="demo-grid">
+        <div class="demo-card">
+          <div class="demo-icon">🔥</div>
+          <h4>Populares</h4>
+          <p>Top películas filtradas por mínimo de valoraciones</p>
+        </div>
+        <div class="demo-card">
+          <div class="demo-icon">🎯</div>
+          <h4>Similares</h4>
+          <p>Recomendaciones content-based por similitud de género (coseno)</p>
+        </div>
+        <div class="demo-card">
+          <div class="demo-icon">👤</div>
+          <h4>Para Ti</h4>
+          <p>Collaborative filtering personalizado por User ID</p>
+        </div>
+        <div class="demo-card">
+          <div class="demo-icon">📊</div>
+          <h4>Exploración</h4>
+          <p>Gráficos interactivos con Plotly (distribución ratings, géneros)</p>
+        </div>
+      </div>
+      <div class="code-block">
+        <code>streamlit run src/streamlit_app.py</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 13: LIMITACIONES ──────────────────────────────────────── -->
+  <section class="slide" data-title="Limitaciones" data-speaker="Paloma">
+    <div class="slide-content">
+      <h2><span class="num">13</span> Limitaciones — Siendo Honestos</h2>
+      <div class="limit-grid">
+        <div class="limit-card">
+          <div class="limit-icon">📅</div>
+          <h4>Dataset de los 90s</h4>
+          <p>100K ratings vs miles de millones hoy. Gustos de 1997 ≠ hoy.</p>
+        </div>
+        <div class="limit-card">
+          <div class="limit-icon">🆕</div>
+          <h4>Cold-Start</h4>
+          <p>Sin historial, no hay recomendación posible para un nuevo usuario.</p>
+        </div>
+        <div class="limit-card">
+          <div class="limit-icon">🕳️</div>
+          <h4>Matriz Sparse</h4>
+          <p>93.7% de celdas vacías. Los usuarios solo vieron una fracción del catálogo.</p>
+        </div>
+        <div class="limit-card">
+          <div class="limit-icon">🎭</div>
+          <h4>Solo Ratings</h4>
+          <p>No usamos sinopsis, directores, actores ni posters.</p>
+        </div>
+        <div class="limit-card">
+          <div class="limit-icon">📐</div>
+          <h4>Evaluación Estática</h4>
+          <p>Split fijo, sin tests A/B con usuarios reales.</p>
+        </div>
+        <div class="limit-card">
+          <div class="limit-icon">👥</div>
+          <h4>Sesgo Demográfico</h4>
+          <p>Mayoritariamente hombres jóvenes angloparlantes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 14: FUTURO ────────────────────────────────────────────── -->
+  <section class="slide" data-title="Trabajo Futuro" data-speaker="Nikita">
+    <div class="slide-content">
+      <h2><span class="num">14</span> ¿Qué nos gustaría agregar?</h2>
+      <div class="future-timeline">
+        <div class="future-item">
+          <div class="future-dot" style="--c:#E50914"></div>
+          <div class="future-content">
+            <h4>🚀 Deep Learning</h4>
+            <p>Neural Collaborative Filtering o autoencoders para superar a SVD</p>
+          </div>
+        </div>
+        <div class="future-item">
+          <div class="future-dot" style="--c:#6C63FF"></div>
+          <div class="future-content">
+            <h4>🔍 Enfoque Híbrido</h4>
+            <p>Mezclar filtrado colaborativo + análisis de contenido (sinopsis, actores, directores)</p>
+          </div>
+        </div>
+        <div class="future-item">
+          <div class="future-dot" style="--c:#00C853"></div>
+          <div class="future-content">
+            <h4>🌐 Más Datos</h4>
+            <p>MovieLens 25M — 250× más ratings para ver cómo escalan los modelos</p>
+          </div>
+        </div>
+        <div class="future-item">
+          <div class="future-dot" style="--c:#FF9800"></div>
+          <div class="future-content">
+            <h4>👥 Resolver Cold-Start</h4>
+            <p>Recomendar por popularidad o demographics cuando no hay historial</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 15: CONCLUSIONES ──────────────────────────────────────── -->
+  <section class="slide" data-title="Conclusiones" data-speaker="">
+    <div class="slide-content cover">
+      <h2 class="conclusion-title">Conclusiones Clave</h2>
+      <div class="conclusion-cards">
+        <div class="conclusion-card">
+          <div class="conclusion-num">1</div>
+          <p><strong>SVD gana</strong> con RMSE ~0.95 — captura patrones globales mejor que CF vecinos</p>
+        </div>
+        <div class="conclusion-card">
+          <div class="conclusion-num">2</div>
+          <p>El EDA reveló sesgos importantes: <strong>demográficos</strong> y de <strong>supervivencia</strong></p>
+        </div>
+        <div class="conclusion-card">
+          <div class="conclusion-num">3</div>
+          <p>La <strong>sparsity</strong> del 93.7% es el reto principal. Más datos = mejores recomendaciones</p>
+        </div>
+      </div>
+      <div class="cover-icon" style="font-size:3rem;margin-top:1.5rem">🎬</div>
+      <h2 class="qa-title">¿Preguntas?</h2>
+      <div class="github-profiles">
+        <a href="https://github.com/NNKtv28" target="_blank" rel="noopener" class="gh-card" style="--accent:#E50914">
+          <img src="https://avatars.githubusercontent.com/NNKtv28" alt="Nikita" class="gh-avatar" />
+          <div class="gh-info">
+            <span class="gh-name">Nikita</span>
+            <span class="gh-user"><svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg> @NNKtv28</span>
+          </div>
+        </a>
+        <a href="https://github.com/palomagondim" target="_blank" rel="noopener" class="gh-card" style="--accent:#6C63FF">
+          <img src="https://avatars.githubusercontent.com/palomagondim" alt="Paloma" class="gh-avatar" />
+          <div class="gh-info">
+            <span class="gh-name">Paloma Gondim</span>
+            <span class="gh-user"><svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg> @palomagondim</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!--  CONTROLES                                                            -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div id="controls">
+  <button id="btn-prev" title="Anterior (←)">◀</button>
+  <span id="slide-counter">1 / 16</span>
+  <button id="btn-next" title="Siguiente (→)">▶</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!--  MODAL ZOOM IMAGEN                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div id="img-modal" class="modal-overlay">
+  <img id="modal-img" src="" alt="Zoom" />
+  <button id="modal-close">&times;</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
